@@ -1,103 +1,36 @@
-# 🛡️ SafeCore AI
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-### **Digital threats don't happen alone. Neither should your defense.**
+## Getting Started
 
-SafeCore AI is an **AI-powered digital safety platform** that transforms scattered scam signals into a connected security investigation.
+First, run the development server:
 
-It doesn't just ask **“Is this dangerous?”**
-
-It helps answer:
-
-> **Why is it dangerous? What is it connected to? What could happen next? What should I do?**
-
----
-
-## ⚡ The Intelligence Layer
-
-```text
-Detect → Explain → Connect → Predict → Protect
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### 🔍 Detect
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Analyze suspicious messages, URLs, domains, and threat signals.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### 🧬 Explain
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Break threats down using **Threat DNA** and explainable risk signals.
+## Learn More
 
-### 🧠 Remember
+To learn more about Next.js, take a look at the following resources:
 
-Use **Threat Memory** to identify previously observed entities and recurring patterns.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### 🕸️ Connect
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-Build relationships between investigations with **Threat Constellation**.
+## Deploy on Vercel
 
-### 🛣️ Reconstruct
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Visualize the progression of a threat through **Attack Paths**.
-
-### 🔮 Predict
-
-Use available evidence to identify a possible **Next Move**.
-
-### 🔐 Protect
-
-Turn intelligence into clear actions through alerts, recommendations, and the **Command Center**.
-
----
-
-## 🚀 What Makes SafeCore Different?
-
-**Most tools detect a threat.
-SafeCore tries to understand the threat journey.**
-
-```text
-Phone
-  ↓
-Message
-  ↓
-URL
-  ↓
-Domain
-  ↓
-Fake Website
-  ↓
-Possible Credential / OTP Request
-```
-
-SafeCore connects these signals into a single investigation instead of treating every event as isolated.
-
----
-
-## 🧰 Built With
-
-**Next.js · React · TypeScript · Tailwind CSS · Supabase · AI**
-
----
-
-## 🌐 Live Demo
-
-**[SafeCore AI](https://safecore-ai-jpju.vercel.app/)**
-
-## 💻 Repository
-
-**[GitHub](https://github.com/agautam9856-dotcom/safecore-ai)**
-
----
-
-## 👨‍💻 Built by
-
-**Aman Gautam**
-B.Tech Computer Engineering
-
----
-
-<div align="center">
-
-### 🛡️ SafeCore AI
-
-**See the threat. Understand the story. Stay ahead.**
-
-</div>
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
