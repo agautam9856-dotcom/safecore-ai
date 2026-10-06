@@ -1,39 +1,103 @@
-# SafeCore AI
+# 🛡️ SafeCore AI
 
-**Understand the threat. Understand the connection. Understand what happens next. Know what to do.**
+### **Digital threats don't happen alone. Neither should your defense.**
 
-SafeCore is a premium, unified digital safety and threat intelligence platform. It replaces isolated security scanners with a comprehensive, interconnected intelligence engine that maps threats, derives risk trends, and provides evidence-backed safety actions.
+SafeCore AI is an **AI-powered digital safety platform** that transforms scattered scam signals into a connected security investigation.
 
-## 🚀 Key Features
+It doesn't just ask **“Is this dangerous?”**
 
-- **Command Center:** A unified dashboard monitoring your real-time digital safety state.
-- **Threat DNA:** Extracts behavioral and structural indicators from URLs, SMS, and emails to explain *why* a payload is risky.
-- **Threat Memory:** Remembers recurring entities (Domains, IPs, Senders) and escalates their threat profile over time.
-- **Threat Constellation:** Maps complex cross-scan correlations (e.g., matching a suspicious SMS sender to a previously scanned malicious URL).
-- **Attack Path Replay & Next Move AI:** Visually reconstructs the attacker's journey and uses heuristics to project the most probable next attack stage.
-- **Evidence Locker:** Secures raw indicators, timelines, and network traces into an isolated forensic container.
-- **Security Insights & Risk Timeline:** Transforms raw scans into longitudinal risk trends (`INCREASING` vs `STABLE`) with explicit time-series graphs.
-- **Smart Alert Center:** Contextually suppresses noisy alerts and only triggers action when risk escalates or cross-matrix connections form.
-- **URL & Domain Intelligence:** A dedicated laboratory for parsing obfuscated links, safely querying DNS (`A`, `MX`, `TXT`), and applying SSRF-hardened network protections.
+It helps answer:
 
-## 🏗️ Architecture
+> **Why is it dangerous? What is it connected to? What could happen next? What should I do?**
 
-SafeCore is built as a progressive, edge-first architecture:
-- **Frontend:** Next.js 15 (App Router), React 19, Tailwind CSS, Framer Motion.
-- **Intelligence Engine:** Client-side orchestration backed by isolated serverless API layers.
-- **Security Protocols:** SSRF prevention against loopback & private octal routing (`10.x`, `172.16.x`, `.local`). Web crawling explicitly bypassed to enforce network integrity.
+---
 
-## 🔒 Security & Privacy
+## ⚡ The Intelligence Layer
 
-- **Data Isolation:** All investigations are strictly encapsulated.
-- **SSRF Hardening:** No server-side HTTP proxy fetching is executed on user payloads. 
-- **Non-Fabricated Data:** SafeCore strictly outputs *derived* intelligence. We do not invent WHOIS data, fake timestamps, or spoofed community reports. If an external API is offline, the system safely falls back to "Data Unavailable."
+```text
+Detect → Explain → Connect → Predict → Protect
+```
 
-## 📱 PWA Support
-SafeCore is fully installable as a Progressive Web App (PWA), supporting mobile form factors with `break-all` UI constraints ensuring complex intelligence matrices render cleanly on small devices.
+### 🔍 Detect
 
-## 🏁 Demo Flow
+Analyze suspicious messages, URLs, domains, and threat signals.
 
-To test the system locally, try scanning a suspicious payload like:
-`URGENT: Your account requires KYC verification. Click here: http://secure-auth-login.example.com`
-The platform will immediately isolate the domain, detect the urgency keywords, map the URL structure, evaluate Threat Memory, and graph the predicted attack progression.
+### 🧬 Explain
+
+Break threats down using **Threat DNA** and explainable risk signals.
+
+### 🧠 Remember
+
+Use **Threat Memory** to identify previously observed entities and recurring patterns.
+
+### 🕸️ Connect
+
+Build relationships between investigations with **Threat Constellation**.
+
+### 🛣️ Reconstruct
+
+Visualize the progression of a threat through **Attack Paths**.
+
+### 🔮 Predict
+
+Use available evidence to identify a possible **Next Move**.
+
+### 🔐 Protect
+
+Turn intelligence into clear actions through alerts, recommendations, and the **Command Center**.
+
+---
+
+## 🚀 What Makes SafeCore Different?
+
+**Most tools detect a threat.
+SafeCore tries to understand the threat journey.**
+
+```text
+Phone
+  ↓
+Message
+  ↓
+URL
+  ↓
+Domain
+  ↓
+Fake Website
+  ↓
+Possible Credential / OTP Request
+```
+
+SafeCore connects these signals into a single investigation instead of treating every event as isolated.
+
+---
+
+## 🧰 Built With
+
+**Next.js · React · TypeScript · Tailwind CSS · Supabase · AI**
+
+---
+
+## 🌐 Live Demo
+
+**[SafeCore AI](https://safecore-ai-jpju.vercel.app/)**
+
+## 💻 Repository
+
+**[GitHub](https://github.com/agautam9856-dotcom/safecore-ai)**
+
+---
+
+## 👨‍💻 Built by
+
+**Aman Gautam**
+B.Tech Computer Engineering
+
+---
+
+<div align="center">
+
+### 🛡️ SafeCore AI
+
+**See the threat. Understand the story. Stay ahead.**
+
+</div>
