@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 export function ThreatTicker() {
   const items = [
-    "🔴 CRITICAL INTERCEPT: +91 98210-XXXXX (SBI KYC Phishing)",
+    "🔴 CRITICAL INTERCEPT: sbi-kyc-gateway.top (Credential Harvesting Phish)",
     "🟡 SUSPICIOUS DOMAIN: bit.ly/tele-job-payout",
     "🟢 VERIFIED SENDER: HDFCBK Official Shortcode",
     "⚡ THREAT SYNC: 240 New Community Flags in last 15m"

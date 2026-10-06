@@ -23,6 +23,7 @@ export function ActionCenter({ scan }: { scan: ScanRecord }) {
       })
       setReported(true)
       setToastVisible(true)
+      window.dispatchEvent(new Event('threats-updated'))
       setTimeout(() => setToastVisible(false), 4500)
     } catch {
       // Silently catch network errors

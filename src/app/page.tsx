@@ -38,6 +38,7 @@ export default function Dashboard() {
       setTimeout(() => {
         playCyberComplete()
         setScanResult(data)
+        window.dispatchEvent(new Event('threats-updated'))
         setIsScanning(false)
       }, 1200)
     } catch {

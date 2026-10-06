@@ -10,9 +10,16 @@ export function IntelFeed() {
   const [intel, setIntel] = useState<CommunityReport[]>([])
   const [recent, setRecent] = useState<ScanRecord[]>([])
 
-  useEffect(() => {
+  const fetchData = () => {
     getCommunityIntelligence(8).then(setIntel).catch(() => {})
     getRecentScans(6).then(setRecent).catch(() => {})
+  }
+
+  useEffect(() => {
+    fetchData()
+    const handleUpdate = () => fetchData()
+    window.addEventListener('threats-updated', handleUpdate)
+    return () => window.removeEventListener('threats-updated', handleUpdate)
   }, [])
 
   return (

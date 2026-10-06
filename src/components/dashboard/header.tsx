@@ -26,8 +26,24 @@ function AnimatedCounter({ target, suffix = "" }: { target: number, suffix?: str
 export function Header() {
   const [muted, setMuted] = useState(false)
 
+  const [stats, setStats] = useState({ intercepts: 4892, trajectories: 1420, sentinels: 24600 })
+
+  const fetchTelemetry = () => {
+    fetch('/api/threats/telemetry').then(r => r.json()).then(data => {
+      setStats({
+        intercepts: data.interactionsIntercepted,
+        trajectories: data.trajectoriesMapped,
+        sentinels: data.sentinelNodes
+      })
+    }).catch(() => {})
+  }
+
   useEffect(() => {
     setMuted(getAudioMute())
+    fetchTelemetry()
+    const handleUpdate = () => fetchTelemetry()
+    window.addEventListener('threats-updated', handleUpdate)
+    return () => window.removeEventListener('threats-updated', handleUpdate)
   }, [])
 
   const handleMute = () => {
@@ -78,15 +94,15 @@ export function Header() {
           </Link>
           <div className="flex flex-col items-end group">
             <span className="text-slate-500 uppercase text-[10px] tracking-wide flex items-center gap-1">Intercepts</span>
-            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={4892} suffix="+" /></span>
+            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={stats.intercepts} suffix="+" /></span>
           </div>
           <div className="flex flex-col items-end border-l border-slate-800/80 pl-6 group">
             <span className="text-slate-500 uppercase text-[10px] tracking-wide flex items-center gap-1"><Database className="w-3 h-3"/> Trajectories</span>
-            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={1420} suffix="+" /></span>
+            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={stats.trajectories} suffix="+" /></span>
           </div>
           <div className="flex flex-col items-end border-l border-slate-800/80 pl-6 group pr-6 border-r">
             <span className="text-slate-500 uppercase text-[10px] tracking-wide flex items-center gap-1"><Globe className="w-3 h-3"/> Sentinels</span>
-            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={24600} suffix="+" /></span>
+            <span className="text-slate-200 group-hover:text-white transition-colors"><AnimatedCounter target={stats.sentinels} suffix="+" /></span>
           </div>
           
           <button onClick={handleMute} className="p-2 bg-[#0A0F1A] border border-slate-700/80 rounded-lg hover:bg-slate-800 hover:text-white transition-colors group" title="Toggle UI Audio">
