@@ -1,0 +1,58 @@
+
+> safecore@0.1.0 start
+> next start
+
+   ▲ Next.js 15.5.27
+   - Local:        http://localhost:3001
+   - Network:      http://10.106.77.209:3001
+
+ ✓ Starting...
+ ✓ Ready in 454ms
+Error saving scan: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+Database error, falling back to memory response: Error: Failed to save scan record
+    at dB (.next/server/app/api/analyze/route.js:24:68404)
+    at async dG (.next/server/app/api/analyze/route.js:24:73579)
+    at async o (.next/server/app/api/analyze/route.js:24:76582)
+    at async f (.next/server/app/api/analyze/route.js:24:77586)
+    at async dM (.next/server/app/api/analyze/route.js:24:78709)
+Error saving scan: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+Database error, falling back to memory response: Error: Failed to save scan record
+    at dB (.next/server/app/api/analyze/route.js:24:68404)
+    at async dG (.next/server/app/api/analyze/route.js:24:73579)
+    at async o (.next/server/app/api/analyze/route.js:24:76582)
+    at async f (.next/server/app/api/analyze/route.js:24:77586)
+    at async dM (.next/server/app/api/analyze/route.js:24:78709)
+Error saving scan: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND nctzcvrwjdfuxzgbdep.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+Database error, falling back to memory response: Error: Failed to save scan record
+    at dB (.next/server/app/api/analyze/route.js:24:68404)
+    at async dG (.next/server/app/api/analyze/route.js:24:73579)
+    at async o (.next/server/app/api/analyze/route.js:24:76582)
+    at async f (.next/server/app/api/analyze/route.js:24:77586)
+    at async dM (.next/server/app/api/analyze/route.js:24:78709)
