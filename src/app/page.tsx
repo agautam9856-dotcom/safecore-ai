@@ -26,7 +26,7 @@ export default function Dashboard() {
     if (scanResult) setScanResult(null)
     
     try {
-      const res = await fetch('/api/analyze', {
+      const res = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payload, type })

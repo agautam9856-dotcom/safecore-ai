@@ -59,7 +59,7 @@ export function ThreatScanner({ onAnalyze, isScanning }: ThreatScannerProps) {
 
   const handleAnalyzeClick = () => {
     playCyberClick()
-    onAnalyze(payload, type)
+    onAnalyze(payload.trim(), type)
   }
 
   return (
