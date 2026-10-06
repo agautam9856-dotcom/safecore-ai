@@ -21,6 +21,8 @@ const PRESETS = [
 
 export function ThreatScanner({ onAnalyze, isScanning }: ThreatScannerProps) {
   const [payload, setPayload] = useState('')
+  const [errorHighlight, setErrorHighlight] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
   const [type, setType] = useState<ScanType>('message')
   const [loadingText, setLoadingText] = useState('DISSECTING SOCIAL-ENGINEERING HEURISTICS & SENDER SPOOFING...')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -58,12 +60,26 @@ export function ThreatScanner({ onAnalyze, isScanning }: ThreatScannerProps) {
   }
 
   const handleAnalyzeClick = () => {
+    if (payload.trim().length === 0) {
+      setErrorHighlight(true)
+      setToastMsg('Enter a message, phone number, or URL to analyze.')
+      setTimeout(() => { setErrorHighlight(false); setToastMsg('') }, 3000)
+      return
+    }
+
     playCyberClick()
     onAnalyze(payload.trim(), type)
   }
 
   return (
     <div className="space-y-6 relative overflow-hidden font-sans">
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute top-4 right-4 z-50 bg-amber-500/10 border border-amber-500 text-amber-500 text-xs font-bold px-4 py-2 rounded-lg backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
       {isScanning && (
         <motion.div 
           initial={{ top: '-10%' }} animate={{ top: '110%' }}
@@ -105,12 +121,12 @@ export function ThreatScanner({ onAnalyze, isScanning }: ThreatScannerProps) {
           value={payload}
           onChange={e => setPayload(e.target.value)}
           placeholder="Paste raw payload or click a simulator preset to arm investigation engine..."
-          className="relative min-h-[160px] bg-[#0A0F1A] border-slate-700/80 text-slate-100 font-mono focus:border-cyber-cyan focus:ring-1 focus:ring-cyber-cyan resize-none p-6 text-sm tracking-wide rounded-xl shadow-inner placeholder:text-slate-600 placeholder:font-sans"
+          className={`relative min-h-[160px] bg-[#0A0F1A] text-slate-100 font-mono focus:ring-1 resize-none p-6 text-sm tracking-wide rounded-xl shadow-inner placeholder:text-slate-600 placeholder:font-sans transition-colors ${errorHighlight ? 'border-amber-500 ring-1 ring-amber-500 focus:border-amber-500 focus:ring-amber-500' : 'border-slate-700/80 focus:border-cyber-cyan focus:ring-cyber-cyan'}`}
         />
         
         <div className="absolute bottom-6 right-6 z-10">
           <Button 
-            disabled={!payload.trim() || isScanning}
+            disabled={isScanning}
             onClick={handleAnalyzeClick}
             className="bg-slate-100 hover:bg-white text-black font-bold tracking-tight px-6 py-5 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] rounded-lg"
           >

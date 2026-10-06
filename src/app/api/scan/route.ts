@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { parsePayloadDynamically } from '@/lib/dynamic-engine'
+import { analyzePayload } from '@/lib/threat-analyzer'
 import { saveScan, checkThreatMemory } from '@/lib/threat-service'
 import { ScanRecord, ScanType } from '@/types/threat'
 
@@ -22,15 +22,15 @@ export async function POST(req: Request) {
         // If real LLM fails, we drop into the catch block gracefully
         throw new Error('LLM not implemented or failed, dropping to deterministic engine')
       } catch {
-        scanResultBase = parsePayloadDynamically(payload, type)
+        scanResultBase = analyzePayload(payload, type)
       }
     } else {
       // 0 latency deterministic heuristic engine fallback
-      scanResultBase = parsePayloadDynamically(payload, type)
+      scanResultBase = analyzePayload(payload, type)
     }
 
     if (!scanResultBase) {
-       scanResultBase = parsePayloadDynamically(payload, type)
+       scanResultBase = analyzePayload(payload, type)
     }
 
     // Threat Memory Injection
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     return NextResponse.json(scanResult)
   } catch (error) {
     // 100% resilient fallback, no console.error to keep terminal clean
-    const fallback = parsePayloadDynamically('Unknown error payload', 'message')
+    const fallback = analyzePayload('Unknown error payload', 'message')
     const finalFallback: ScanRecord = {
       id: `scan-err-${Date.now()}`,
       ...fallback,
