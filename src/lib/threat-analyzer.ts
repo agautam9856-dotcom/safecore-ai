@@ -5,9 +5,9 @@ const REGEX = {
   DOMAIN: /https?:\/\/[^\s]+|[a-zA-Z0-9-]+\.(xyz|top|live|click|app|link|tk|ml|cf|ga|gq|club|icu|online)/gi,
   IP: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
   SHORTENER: /(bit\.ly\/[a-zA-Z0-9]+|t\.me\/[a-zA-Z0-9_]+|tinyurl\.com\/[a-zA-Z0-9]+)/gi,
-  PHONE_IND: /(\+91[\-\s]?)?[6-9]\d{9}\b/g,
-  TOLL_FREE: /1800\d{6,7}\b/g,
-  SHORTCODE: /\b[A-Z]{2}-[A-Z0-9]{6}\b/i, 
+  PHONE_IND: /(?:(?:\+|0{0,2})91[\s\-]?)?[6-9]\d{9}\b/g,
+  TOLL_FREE: /1800[\s\-]?\d{3}[\s\-]?\d{3,4}\b/g,
+  SHORTCODE: /^[A-Z]{2}-[A-Z0-9]{6}$/i, 
   
   // Keywords
   BANKING: /(sbi|hdfc|icici|rbi|kyc|pan|debit card|credit card|netbanking|account blocked|suspended)/i,
@@ -22,7 +22,7 @@ export function analyzePayload(payload: string, type: ScanType = 'message'): Omi
   const indicators: string[] = []
 
   // Extract Contacts
-  let extractedContact = "Unspecified Origin / Raw Text"
+  let extractedContact: string | null = null
   const phones = payload.match(REGEX.PHONE_IND) || payload.match(REGEX.TOLL_FREE) || []
   const shortcodes = payload.match(REGEX.SHORTCODE) || []
   if (shortcodes.length > 0) extractedContact = shortcodes[0] as string
@@ -42,7 +42,7 @@ export function analyzePayload(payload: string, type: ScanType = 'message'): Omi
   const hasCredential = REGEX.CREDENTIAL.test(payload)
   const hasFinancial = REGEX.FINANCIAL.test(payload)
   const hasDelivery = REGEX.DELIVERY.test(payload)
-  const hasShortcodeLink = (shortcodes.length > 0 || extractedContact === "Unspecified Origin / Raw Text") && extractedDomain !== "No External URL Detected"
+  const hasShortcodeLink = (shortcodes.length > 0 || extractedContact === null) && extractedDomain !== "No External URL Detected"
 
   // B. Dynamic Score Calculation Formula
   if (hasRiskTld && extractedDomain !== "No External URL Detected") {
@@ -99,8 +99,8 @@ export function analyzePayload(payload: string, type: ScanType = 'message'): Omi
   }
 
   const explanation = threatLevel === 'LOW'
-    ? `WHAT: BENIGN_COMMUNICATION\nWHY: Analyzed contact "${extractedContact}" and domain "${extractedDomain}". No high-risk triggers detected.\nWHAT NEXT: Safe to proceed, but remain vigilant.`
-    : `WHAT: ${threatCategory}\nWHY: Detected origin "${extractedContact}" sending link "${extractedDomain}". Triggered by ${indicators.length} adversarial markers.\nWHAT NEXT: Do not click the link or provide requested information.`
+    ? `WHAT: BENIGN_COMMUNICATION\nWHY: Analyzed contact "${extractedContact || 'Direct User Input'}" and domain "${extractedDomain}". No high-risk triggers detected.\nWHAT NEXT: Safe to proceed, but remain vigilant.`
+    : `WHAT: ${threatCategory}\nWHY: Detected origin "\${extractedContact || 'Direct User Input'}" sending link "${extractedDomain}". Triggered by ${indicators.length} adversarial markers.\nWHAT NEXT: Do not click the link or provide requested information.`
 
   let predictedNext = 'Attacker may transition to a more aggressive request.'
   const next_moves: NextMovePrediction[] = []
@@ -126,12 +126,12 @@ export function analyzePayload(payload: string, type: ScanType = 'message'): Omi
   // Node 1: Origin
   journeyNodes.push({
     id: 'node-1',
-    label: extractedContact,
-    type: shortcodes.length > 0 ? 'sms' : (phones.length > 0 ? 'phone' : 'sms'),
-    status: threatLevel === 'LOW' ? 'neutral' : (shortcodes.length > 0 ? 'warning' : 'flagged'),
-    details: 'Origin Identity',
+    label: extractedContact ? extractedContact : 'Direct User Input',
+    type: extractedContact ? (shortcodes.length > 0 ? 'sms' : 'phone') : 'terminal',
+    status: threatLevel === 'LOW' ? 'neutral' : (extractedContact ? 'warning' : 'neutral'),
+    details: extractedContact ? 'Origin Identity' : 'Transmission Vector: Direct Web / Inbound Buffer\nSender ID: Not Specified',
     stage: 'OBSERVED',
-    evidence: [extractedContact]
+    evidence: extractedContact ? [extractedContact] : []
   })
 
   // Node 2: Bait Hook

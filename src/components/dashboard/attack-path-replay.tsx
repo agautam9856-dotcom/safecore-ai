@@ -2,7 +2,7 @@
 import { ScanRecord, JourneyNode, NextMovePrediction } from '@/types/threat'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { PlayCircle, ShieldAlert, Phone, MessageSquare, Link2, Globe, CreditCard, Lock, ChevronRight, CheckCircle, Crosshair, HelpCircle, Activity, Info } from 'lucide-react'
+import { PlayCircle, ShieldAlert, Phone, MessageSquare, Link2, Globe, CreditCard, Lock, ChevronRight, CheckCircle, Crosshair, HelpCircle, Activity, Info, Terminal } from 'lucide-react'
 import { playCyberClick, playCyberScan, playCyberComplete } from '@/lib/audio'
 
 const getIcon = (type: string) => {
@@ -13,6 +13,7 @@ const getIcon = (type: string) => {
     case 'website': return <Globe className="w-5 h-5" />
     case 'payment': return <CreditCard className="w-5 h-5" />
     case 'otp': return <Lock className="w-5 h-5" />
+    case 'terminal': return <Terminal className="w-5 h-5" />
     default: return <ShieldAlert className="w-5 h-5" />
   }
 }

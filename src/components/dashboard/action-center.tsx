@@ -103,6 +103,10 @@ export function ActionCenter({ scan }: { scan: ScanRecord }) {
                 <span className="text-slate-200 font-mono text-xs">{new Date(scan.created_at).toUTCString()}</span>
               </div>
               <div className="bg-[#0A0F1A] p-3 rounded-lg border border-slate-800/80">
+                <span className="text-slate-500 font-medium text-xs block mb-1">ORIGIN CONTACT</span>
+                <span className="text-slate-200 font-mono text-xs">{scan.journey_nodes[0]?.type === 'terminal' || !scan.journey_nodes[0]?.evidence?.length ? 'Not Provided (Direct Message Body)' : scan.journey_nodes[0]?.label}</span>
+              </div>
+              <div className="bg-[#0A0F1A] p-3 rounded-lg border border-slate-800/80">
                 <span className="text-slate-500 font-medium text-xs block mb-1">COMPOSITE RISK INDEX</span>
                 <span className={`font-bold ${scan.risk_level === 'CRITICAL' || scan.risk_level === 'HIGH' ? 'text-threat-critical' : 'text-amber-500'}`}>{scan.risk_score} / 100 ({scan.risk_level})</span>
               </div>

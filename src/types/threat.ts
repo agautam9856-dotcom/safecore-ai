@@ -12,7 +12,7 @@ export interface NextMovePrediction {
 export interface JourneyNode {
   id: string
   label: string
-  type: 'phone' | 'sms' | 'url' | 'website' | 'payment' | 'otp'
+  type: 'phone' | 'sms' | 'url' | 'website' | 'payment' | 'otp' | 'terminal'
   status: 'flagged' | 'warning' | 'pending' | 'neutral'
   details?: string
   stage?: 'OBSERVED' | 'CURRENT' | 'PREDICTED'

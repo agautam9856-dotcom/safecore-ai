@@ -50,7 +50,7 @@ export function IntelFeed() {
           {recent.map(r => (
             <div key={r.id} className="flex flex-col gap-2 p-3.5 rounded-xl bg-black/20 border border-slate-800/50 hover:border-slate-700 transition-colors">
               <div className="flex justify-between items-start">
-                <p className="text-xs font-semibold text-slate-300 truncate pr-2">{r.scam_category}</p>
+                <p className="text-xs font-semibold text-slate-300 truncate pr-2">{r.journey_nodes[0]?.type === 'terminal' || !r.journey_nodes[0]?.evidence?.length ? 'Payload: ' + (r.raw_payload.substring(0, 30) + '...') : r.scam_category}</p>
                 <ThreatBadge level={r.risk_level} className="scale-90 origin-top-right shadow-none" />
               </div>
               <div className="flex justify-between items-center mt-1">

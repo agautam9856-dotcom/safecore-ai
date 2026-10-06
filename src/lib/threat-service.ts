@@ -14,7 +14,7 @@ const MOCK_SCANS: ScanRecord[] = [
     explanation: 'This is a classic delivery fee scam designed to steal credit card information via a fake tracking portal.',
     predicted_next_step: 'The attacker will attempt unauthorized charges on the submitted credit card within 24 hours.',
     journey_nodes: [
-      { id: 'jn-1', label: '+1 (555) 019-2039', type: 'sms', status: 'flagged', details: 'Known VOIP number' },
+      { id: 'jn-1', label: 'Direct User Input', type: 'sms', status: 'flagged', details: 'Known VOIP number' },
       { id: 'jn-2', label: 'track-parcel-ups-fee.com', type: 'url', status: 'flagged', details: 'Registered 2 days ago' },
       { id: 'jn-3', label: 'Fake Payment Gateway', type: 'payment', status: 'warning', details: 'Steals CC info' }
     ],
@@ -40,7 +40,7 @@ const MOCK_COMMUNITY_REPORTS: CommunityReport[] = [
   {
     id: 'cr-2',
     entity_type: 'phone',
-    entity_value: '+18005550199',
+    entity_value: 'Direct User Input',
     threat_type: 'Tech Support Scam',
     reports_count: 854,
     verified_status: true,
