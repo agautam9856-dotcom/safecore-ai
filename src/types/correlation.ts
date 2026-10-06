@@ -3,7 +3,7 @@ import { RiskLevel } from './threat'
 export interface ConstellationNode {
   id: string
   label: string
-  type: 'phone' | 'sms' | 'email' | 'url' | 'domain' | 'website' | 'payment' | 'otp'
+  type: 'phone' | 'sms' | 'email' | 'url' | 'domain' | 'website' | 'payment' | 'otp' | 'terminal'
   risk_level: RiskLevel
   risk_score: number
   observation_count: number

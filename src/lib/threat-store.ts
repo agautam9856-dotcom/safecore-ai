@@ -31,7 +31,7 @@ export const threatStore: ThreatStore = globalForStore.__THREAT_STORE__ ?? {
     {
       id: 'cr-2',
       entity_type: 'url',
-      entity_value: 'payment-gateway-portal.xyz',
+      entity_value: 'fast-parcel-dispatch.xyz',
       threat_type: 'Malicious Re-Direct',
       reports_count: 854,
       verified_status: true,

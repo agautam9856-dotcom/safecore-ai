@@ -208,7 +208,7 @@ export function getDemoConstellation(): ThreatCluster {
 
   const nodes: ConstellationNode[] = [
     {
-      id: 'd-1', label: '+91 98210-XXXXX', type: 'phone', risk_level: 'SUSPICIOUS', risk_score: 65, observation_count: 3, relationship_count: 2,
+      id: 'd-1', label: 'Direct User Input', type: 'terminal', risk_level: 'SUSPICIOUS', risk_score: 65, observation_count: 3, relationship_count: 2,
       first_seen: mkTime(120), last_seen: mkTime(10), x: 50, y: 300, details: 'Unknown Caller/Sender (VOIP)'
     },
     {
