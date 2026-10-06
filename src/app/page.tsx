@@ -3,13 +3,18 @@ import { useState } from 'react'
 import { Header } from '@/components/dashboard/header'
 import { ThreatTicker } from '@/components/dashboard/threat-ticker'
 import { ThreatScanner } from '@/components/dashboard/threat-scanner'
-import { ScamJourney } from '@/components/dashboard/scam-journey'
+import { AttackPathReplay } from '@/components/dashboard/attack-path-replay'
 import { ThreatAnalysisCard } from '@/components/dashboard/threat-analysis-card'
 import { ActionCenter } from '@/components/dashboard/action-center'
+import { SmartAlertCenter } from '@/components/dashboard/smart-alert-center'
+import { EvidenceLocker } from '@/components/dashboard/evidence-locker'
+import { UrlIntelligenceLab } from '@/components/dashboard/url-intelligence'
 import { IntelFeed } from '@/components/dashboard/intel-feed'
+import { ConstellationEntry } from '@/components/dashboard/constellation-entry'
 import { ScanRecord, ScanType } from '@/types/threat'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GlassCard } from '@/components/ui/glass-card'
+import { CommandCenterHero } from '@/components/dashboard/command-center-hero'
 import { playCyberComplete } from '@/lib/audio'
 
 export default function Dashboard() {
@@ -29,29 +34,31 @@ export default function Dashboard() {
       if (!res.ok) throw new Error('API Error')
       const data = await res.json()
       
-      // Cinematic 3.6s delay for the 3-phase scanning sequence
+      // Cinematic 1.2s delay for the scanning sequence to match Vercel-tier speed
       setTimeout(() => {
         playCyberComplete()
         setScanResult(data)
         setIsScanning(false)
-      }, 3600)
-    } catch (e) {
-      console.error(e)
+      }, 1200)
+    } catch {
+      // Silently catch in production build to avoid UI overlays
       setIsScanning(false)
     }
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#05080F] text-slate-200 font-sans cyber-grid selection:bg-cyber-cyan/30 overflow-x-hidden">
+    <main className="min-h-screen flex flex-col bg-[#070B14] text-slate-200 font-sans cyber-grid selection:bg-cyber-cyan/30 overflow-x-hidden">
       <Header />
       <ThreatTicker />
       
-      <div className="flex-1 max-w-[1800px] w-full mx-auto p-4 md:p-8 flex flex-col xl:flex-row gap-8">
+      <div className="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-8 flex flex-col xl:flex-row gap-8">
         
         {/* Main Orchestration Column */}
         <div className="flex-1 flex flex-col gap-8 min-w-0">
           
-          <GlassCard withCorners className="z-10 shadow-2xl shadow-black/80">
+          {!scanResult && !isScanning && <CommandCenterHero />}
+          
+          <GlassCard withCorners className="z-10 shadow-2xl shadow-black/80 bg-[#0A0F1A]/90 border-slate-800/80">
             <ThreatScanner onAnalyze={handleAnalyze} isScanning={isScanning} />
           </GlassCard>
 
@@ -59,33 +66,29 @@ export default function Dashboard() {
             {scanResult && (
               <motion.div 
                 key={scanResult.id}
-                initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+                initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 className="flex flex-col gap-8"
               >
-                <GlassCard className="overflow-visible p-0 shadow-2xl shadow-black/50 border-cyber-border-highlight/50">
-                  <div className="px-8 py-5 bg-slate-900/80 border-b border-slate-800/80 flex items-center justify-between rounded-t-xl">
-                    <h2 className="text-xs font-bold text-cyber-cyan tracking-[0.2em] uppercase">Interactive Scam Journey Graph</h2>
-                    <span className="text-[9px] font-mono bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 px-3 py-1.5 rounded uppercase tracking-widest animate-pulse">Select Nodes For Forensic Telemetry</span>
-                  </div>
-                  <div className="px-4">
-                    <ScamJourney nodes={scanResult.journey_nodes} />
-                  </div>
-                </GlassCard>
+                <AttackPathReplay scan={scanResult} />
 
+                <UrlIntelligenceLab scan={scanResult} />
                 <ThreatAnalysisCard scan={scanResult} />
                 <ActionCenter scan={scanResult} />
+                <EvidenceLocker scan={scanResult} />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
         {/* Global Intel Sidebar */}
-        <div className="w-full xl:w-[420px] flex-shrink-0">
+        <div className="w-full xl:w-[400px] flex-shrink-0">
+          <ConstellationEntry />
           <IntelFeed />
         </div>
 
       </div>
+      <SmartAlertCenter currentScan={scanResult} />
     </main>
   )
 }

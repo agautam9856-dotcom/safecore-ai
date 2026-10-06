@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server'
-import { saveScan } from '@/lib/threat-service'
-import type { RiskLevel, ScanRecord, JourneyNode, ScanType } from '@/types/threat'
+import { JourneyNode, RiskLevel, ScanRecord, NextMovePrediction } from '@/types/threat'
+import { saveScan, checkThreatMemory } from '@/lib/threat-service'
+
+export const runtime = 'nodejs'
 
 interface AnalyzeRequest {
   payload: string
-  type: ScanType
+  type: 'message' | 'url'
 }
 
-// --- HEURISTICS PATTERNS ---
 const PATTERNS = {
-  BANK_KYC: /(kyc|pan\s*card|bank|account|suspended|blocked|sbi|hdfc|icici|axis|dear\s*customer|update\s*immediately)/i,
-  JOB_TASK: /(part[\s-]*time|daily\s*tasks|work\s*from\s*home|telegram|recruitment|salary|youtube\s*likes|prepaid\s*task)/i,
-  DELIVERY: /(delivery|undelivered|package|courier|held|post|fedex|dhl|customs|shipping\s*fee)/i,
-  INVESTMENT: /(crypto|doubler|guaranteed\s*returns|investment|trading\s*app|bitcoin|usdt|profit|wallet)/i,
+  BANK_KYC: /(kyc|sbi|hdfc|icici|axis|pan\s*card|bank|account\s*suspended|blocked|netbanking)/i,
+  JOB_TASK: /(part[\s-]?time|youtube|like\s*video|subscribe|salary|rs\s*5000|task|hr|recruiter|telegram)/i,
+  DELIVERY: /(india\s*post|ups|fedex|dhl|bluedart|delivery|package|customs|fee|held\s*at\s*depot|address\s*update)/i,
+  INVESTMENT: /(crypto|bitcoin|usdt|profit|investment|double|binance|wazirx|trading|forex)/i,
   GOV_ARREST: /(cbi|trai|police|arrest|warrant|legal\s*notice|fir|supreme\s*court|cyber\s*crime|narcotics)/i,
   TECH_SUPPORT: /(anydesk|teamviewer|quicksupport|electricity\s*bill|disconnected|refund|remote\s*access)/i,
   OTP_HARVEST: /(otp|cvv|password|pin|netbanking|login|verify\s*identity|do\s*not\s*share)/i,
@@ -28,6 +29,18 @@ function extractEntities(text: string) {
   return { urls, phones }
 }
 
+function normalizeUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url.replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '')
+  }
+}
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/[\s\-\(\)]/g, '')
+}
+
 export async function POST(req: Request) {
   try {
     const body: AnalyzeRequest = await req.json()
@@ -40,31 +53,56 @@ export async function POST(req: Request) {
     const text = payload.toLowerCase()
     const { urls, phones } = extractEntities(payload)
 
+    // Normalize for Threat Memory
+    const entitySet = new Map<string, { value: string, type: 'domain' | 'phone' }>()
+    urls.forEach(u => {
+      const norm = normalizeUrl(u)
+      if (norm) entitySet.set(norm, { value: norm, type: 'domain' })
+    })
+    phones.forEach(p => {
+      const norm = normalizePhone(p)
+      if (norm) entitySet.set(norm, { value: norm, type: 'phone' })
+    })
+
+    const threatMemoryContext = await checkThreatMemory(Array.from(entitySet.values()))
+
     // 1. Scoring & Categorization
     let score = 0
     const indicators: string[] = []
     let detectedCategory = 'Unknown Threat / General Spam'
     let predictedNext = 'The attacker will attempt to socially engineer you into making an irrational decision.'
+    
+    // For Next Move AI
+    const next_moves: NextMovePrediction[] = []
 
     // Evaluate Archetypes
     if (PATTERNS.BANK_KYC.test(text)) {
       score += 40; detectedCategory = 'Bank / KYC Verification Fraud'; indicators.push('Banking/KYC impersonation terminology')
       predictedNext = 'Attacker will prompt you to download a fake banking APK or enter netbanking credentials on a spoofed portal.'
+      next_moves.push({ type: 'Credential Request', confidence: 88, why: ['Bank impersonation detected', 'Urgency language detected', 'Credential harvesting indicators detected'], action_label: 'VERIFY INDEPENDENTLY' })
+      next_moves.push({ type: 'OTP Request', confidence: 75, why: ['KYC flows typically terminate in OTP interception'], action_label: 'DO NOT SHARE OTP' })
     } else if (PATTERNS.JOB_TASK.test(text)) {
       score += 45; detectedCategory = 'Fake Job / Task Scam'; indicators.push('Part-time job / daily task bait')
       predictedNext = 'Attacker will pay a small initial "salary" to build trust, then demand a large "prepaid crypto deposit" for VIP tasks.'
+      next_moves.push({ type: 'Payment Request', confidence: 91, why: ['Task scams rely on prepaid deposits for VIP tiers'], action_label: 'DO NOT DEPOSIT FUNDS' })
+      next_moves.push({ type: 'Channel Switch', confidence: 85, why: ['Attacker will request moving to Telegram or WhatsApp'], action_label: 'IGNORE' })
     } else if (PATTERNS.DELIVERY.test(text)) {
       score += 35; detectedCategory = 'Fake Delivery / Courier Hold'; indicators.push('Courier/Package delivery bait')
       predictedNext = 'Attacker will ask for a tiny re-delivery fee ($1-$3) purely to harvest your credit card details.'
+      next_moves.push({ type: 'Payment Request', confidence: 95, why: ['Customs/Courier scams demand immediate micro-payments'], action_label: 'DO NOT PAY' })
     } else if (PATTERNS.GOV_ARREST.test(text)) {
       score += 55; detectedCategory = 'Government Impersonation / Digital Arrest'; indicators.push('Law enforcement coercion tactics')
       predictedNext = 'Attacker will connect you to a fake "police officer" over video call and demand immediate "bail" or "clearance" funds via RTGS/Crypto.'
+      next_moves.push({ type: 'Channel Switch', confidence: 92, why: ['Digital arrests transition to Skype/WhatsApp video calls'], action_label: 'DISCONNECT' })
+      next_moves.push({ type: 'Payment Request', confidence: 85, why: ['Bail or clearance funds will be demanded'], action_label: 'DO NOT PAY' })
     } else if (PATTERNS.INVESTMENT.test(text)) {
       score += 45; detectedCategory = 'Investment / Crypto Scam'; indicators.push('Unrealistic financial returns promised')
       predictedNext = 'Attacker will show fake profits on a spoofed dashboard and block withdrawals until you pay hefty "tax fees".'
+      next_moves.push({ type: 'Payment Request', confidence: 94, why: ['Investment portals demand tax or withdrawal fees'], action_label: 'REPORT' })
     } else if (PATTERNS.TECH_SUPPORT.test(text)) {
       score += 45; detectedCategory = 'Fake Support / Remote Access'; indicators.push('Utility/Support impersonation')
       predictedNext = 'Attacker will convince you to install AnyDesk/TeamViewer to steal OTPs right off your screen.'
+      next_moves.push({ type: 'Software Installation', confidence: 96, why: ['Support scams require Remote Desktop (AnyDesk/TeamViewer)'], action_label: 'DO NOT INSTALL' })
     }
 
     if (PATTERNS.OTP_HARVEST.test(text)) {
@@ -82,32 +120,43 @@ export async function POST(req: Request) {
     score = Math.min(100, Math.max(0, score + (type === 'message' ? 5 : 0)))
     if (score < 15 && urls.length === 0 && phones.length === 0) score = 0 // Baseline normalization
 
+    // Default Next Move if none matched but high risk
+    if (next_moves.length === 0 && score > 50) {
+      next_moves.push({ type: 'Data Collection', confidence: 72, why: ['High risk context usually leads to data harvesting'], action_label: 'DO NOT SHARE DATA' })
+    }
+
     // 2. Ladder Mapping
     let risk_level: RiskLevel = 'LOW'
     if (score >= 81) risk_level = 'CRITICAL'
     else if (score >= 61) risk_level = 'HIGH'
     else if (score >= 26) risk_level = 'SUSPICIOUS'
 
-    // 3. Journey Nodes Generation
+    // 3. Journey Nodes Generation (Attack Path)
     const journeyNodes: JourneyNode[] = []
-    const senderNode: JourneyNode = {
+    
+    // Sender (OBSERVED)
+    journeyNodes.push({
       id: 'node-1',
       label: phones[0] || (type === 'url' ? 'Web Source' : 'Unknown Sender'),
       type: phones.length > 0 ? 'phone' : (type === 'url' ? 'website' : 'sms'),
       status: risk_level === 'LOW' ? 'neutral' : 'warning',
-      details: 'Initial contact vector'
-    }
-    journeyNodes.push(senderNode)
+      details: 'Initial contact vector',
+      stage: 'OBSERVED',
+      evidence: [phones[0] || 'Unknown Origin']
+    })
 
-    const baitNode: JourneyNode = {
+    // Social Engineering / Hook (OBSERVED)
+    journeyNodes.push({
       id: 'node-2',
       label: detectedCategory,
       type: 'sms',
       status: risk_level === 'CRITICAL' || risk_level === 'HIGH' ? 'flagged' : (risk_level === 'SUSPICIOUS' ? 'warning' : 'neutral'),
-      details: 'The psychological hook'
-    }
-    journeyNodes.push(baitNode)
+      details: 'The psychological hook',
+      stage: urls.length === 0 ? 'CURRENT' : 'OBSERVED',
+      evidence: [payload.substring(0, 50) + '...']
+    })
 
+    // Suspicious Link (OBSERVED/CURRENT)
     if (urls.length > 0) {
       const firstUrl = urls[0] as string
       journeyNodes.push({
@@ -115,24 +164,30 @@ export async function POST(req: Request) {
         label: firstUrl.length > 25 ? firstUrl.substring(0, 25) + '...' : firstUrl,
         type: 'url',
         status: SUSPICIOUS_TLDS.test(firstUrl) || SHORTENERS.test(firstUrl) ? 'flagged' : 'warning',
-        details: 'Redirection vector'
+        details: 'Redirection vector',
+        stage: 'CURRENT',
+        evidence: [firstUrl]
       })
+      // Predicted Fake Portal
       journeyNodes.push({
         id: 'node-4',
-        label: 'Phishing / Fake Portal',
+        label: 'Possible Fake Portal',
         type: 'website',
-        status: risk_level === 'CRITICAL' ? 'flagged' : 'warning',
-        details: 'Exploitation interface'
+        status: 'pending',
+        details: 'Predicted exploitation interface',
+        stage: 'PREDICTED'
       })
     }
 
+    // Ultimate Goal (PREDICTED)
     if (risk_level !== 'LOW') {
       journeyNodes.push({
         id: 'node-5',
-        label: 'Financial / Credential Loss',
-        type: 'payment',
-        status: 'pending', // Always pending as it's the future goal
-        details: 'The ultimate trap'
+        label: next_moves[0]?.type || 'Financial / Credential Loss',
+        type: next_moves[0]?.type === 'OTP Request' ? 'otp' : 'payment',
+        status: 'pending',
+        details: 'Predicted ultimate trap',
+        stage: 'PREDICTED'
       })
     }
 
@@ -160,16 +215,16 @@ export async function POST(req: Request) {
       explanation,
       predicted_next_step: predictedNext,
       journey_nodes: journeyNodes,
-      actions
+      actions,
+      threat_memory: threatMemoryContext,
+      next_moves
     }
 
     // 6. Persist gracefully
     let scanResult: ScanRecord
     try {
       scanResult = await saveScan(newScanData)
-    } catch (dbError) {
-      console.error('Database error, falling back to memory response:', dbError)
-      // Fallback response so API never fails externally
+    } catch {
       scanResult = {
         id: `scan-fb-${Date.now()}`,
         ...newScanData,
@@ -178,8 +233,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(scanResult)
-  } catch (error) {
-    console.error('Analyze API Error:', error)
-    return NextResponse.json({ error: 'Internal Server Error processing payload' }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
